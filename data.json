@@ -1,0 +1,165 @@
+{
+  "config": {
+    "siteTitle": "點線極簡：東京分流同步計畫",
+    "dayRoutes": [
+      { "id": "a", "label": "清澄工藝線" },
+      { "id": "b", "label": "村上文學線" }
+    ],
+    "nightRoutes": [
+      { "id": "shop", "label": "質感購物" },
+      { "id": "intro", "label": "Intro爵士" },
+      { "id": "dug", "label": "DUG爵士" }
+    ]
+  },
+  "schedule": [
+    {
+      "timeId": "time-10",
+      "timeLabel": "10:00",
+      "phase": "day",
+      "action": "DEPARTURE",
+      "routes": {
+        "a": {
+          "title": "木場公園",
+          "meta": ["交通 / 有樂町線轉東西線 -> 木場站", "費用 / 250 日圓"],
+          "description": "早年為木材集散地，現已重劃為廣大的綠地公園。園內著名的白色大吊橋設計俐落，非常適合早晨散步、沉澱思緒，為一整天的質感之旅拉開序幕。",
+          "links": [
+            { "label": "↗ 導航至木場公園", "url": "https://www.google.com/maps/dir/?api=1&destination=Kiba+Park+Tokyo", "style": "default" }
+          ]
+        },
+        "b": {
+          "title": "早稻田 村上春樹圖書館",
+          "meta": ["交通 / 山手線轉東西線 -> 早稻田站", "費用 / 330 日圓"],
+          "description": "由建築大師隈研吾親自操刀，絕美的木質階梯書架充滿溫潤感。館內展出大量初版書籍、《海邊的卡夫卡》原稿，並播放著村上私藏的黑膠唱片。",
+          "links": [
+            { "label": "↗ 導航至圖書館", "url": "https://www.google.com/maps/dir/?api=1&destination=The+Waseda+International+House+of+Literature", "style": "default" }
+          ]
+        }
+      }
+    },
+    {
+      "timeId": "time-11",
+      "timeLabel": "11:00",
+      "phase": "day",
+      "action": "EXPLORE",
+      "routes": {
+        "a": {
+          "title": "東京都現代美術館 (MOT)",
+          "meta": ["步行 / 從木場公園步行 10-15 分", "費用 / 常設展 500 日圓"],
+          "description": "建築師柳澤孝彥設計，大量使用鋼架與幾何線條，光影層次豐富。觀展之餘，也非常適合為平面設計或材質拼貼尋找深刻的空間啟發。",
+          "links": [
+            { "label": "↗ 導航至美術館", "url": "https://www.google.com/maps/dir/?api=1&destination=Museum+of+Contemporary+Art+Tokyo", "style": "default" }
+          ]
+        },
+        "b": {
+          "title": "神宮外苑銀杏大道",
+          "meta": ["交通 / 東西線轉半藏門線 -> 青山一丁目", "費用 / 210 日圓"],
+          "description": "「那一刻，沒有任何徵兆，我突然心想：對了，我也來寫小說看看吧。」漫步神宮球場外苑，回到村上決定成為作家的靈感發源地。",
+          "links": [
+            { "label": "↗ 導航至神宮外苑", "url": "https://www.google.com/maps/dir/?api=1&destination=Meiji+Jingu+Gaien", "style": "default" }
+          ]
+        }
+      }
+    },
+    {
+      "timeId": "time-13",
+      "timeLabel": "13:30",
+      "phase": "day",
+      "action": "LUNCH",
+      "routes": {
+        "a": {
+          "title": "清澄白河 街區美食",
+          "meta": ["步行 / 美術館周邊散步"],
+          "description": "不吃美術館餐廳，帶你走入周邊街區品嚐在地平價選擇。「深川宿」品嚐江戶時代漁夫的傳統料理蛤蜊飯；或是前往「滿留賀」享用道地的傳統炸蝦蕎麥麵。",
+          "links": [
+            { "label": "↗ 導航至深川宿 (約1500円)", "url": "https://www.google.com/maps/dir/?api=1&destination=Fukagawajuku+Tomioka+Hachiman", "style": "default" },
+            { "label": "↗ 導航至滿留賀 (約1000円)", "url": "https://www.google.com/maps/dir/?api=1&destination=Maruka+Soba+Kiyosumi+Shirakawa", "style": "default" }
+          ]
+        },
+        "b": {
+          "title": "早稻田 學區記憶",
+          "meta": ["步行 / 圖書館周邊散步"],
+          "description": "午餐可直接在圖書館附設的「橙子咖啡」享用村上春樹特製焙煎咖啡與簡餐；或是走入早稻田學區，尋找充滿青春氣息的平價豬排咖哩飯。",
+          "links": [
+            { "label": "↗ 導航至橙子咖啡", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F0", "style": "default" }
+          ]
+        }
+      }
+    },
+    {
+      "timeId": "time-15",
+      "timeLabel": "15:00",
+      "phase": "day",
+      "action": "BREAK",
+      "routes": {
+        "a": {
+          "title": "藍瓶咖啡 旗艦店",
+          "meta": ["步行 / 午餐後散步抵達"],
+          "description": "日本藍瓶一號店。挑高且充滿金屬機械質感的工業風烘豆廠空間，結合職人精準的手沖技術。推薦品嚐明亮果酸的單品手沖 (Single Origin Drip)。",
+          "links": [
+            { "label": "↗ 導航至藍瓶咖啡", "url": "https://www.google.com/maps/dir/?api=1&destination=Blue+Bottle+Coffee+Kiyosumi+Shirakawa", "style": "default" }
+          ]
+        },
+        "b": {
+          "title": "千駄谷 Peter Cat 舊址",
+          "meta": ["步行 / 從神宮外苑散步 15 分鐘"],
+          "description": "在成為專職作家之前，村上春樹與妻子曾在千駄谷經營爵士酒吧。漫步在這片寧靜街區，找家獨立咖啡館點杯黑咖啡，感受《1973年的彈珠玩具》的孤獨氛圍。",
+          "links": [
+            { "label": "↗ 導航至千駄谷", "url": "https://www.google.com/maps/dir/?api=1&destination=Sendagaya+Station", "style": "default" }
+          ]
+        }
+      }
+    },
+    {
+      "timeId": "time-18",
+      "timeLabel": "18:00",
+      "phase": "night",
+      "action": "NIGHT SPLIT",
+      "routes": {
+        "shop": {
+          "title": "工藝購物與天婦羅",
+          "meta": ["位置 / 藏前與日本橋商圈", "費用 / 轉乘約 180 日圓"],
+          "description": "把握店家打烊前，前往藏前體驗「Kakimori」自組筆記本，或至日本橋 Coredo 室町尋找和風生活道具。晚餐推薦至日本橋享用頂級江戶前天婦羅 (如金子半之助)。",
+          "links": [
+            { "label": "↗ 導航至日本橋", "url": "https://www.google.com/maps/dir/?api=1&destination=COREDO+Muromachi", "style": "default" },
+            { "label": "↗ 導航至藏前", "url": "https://www.google.com/maps/dir/?api=1&destination=Kakimori+Kuramae+Tokyo", "style": "default" },
+            { "label": "↗ 晚餐：金子半之助", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F1", "style": "default" }
+          ]
+        },
+        "intro": {
+          "title": "高田馬場 Intro 爵士夜",
+          "meta": ["位置 / 高田馬場", "費用 / 轉乘約 250 日圓"],
+          "description": "晚餐先享用高田馬場著名的炸豬排，隨後潛入這間隱身地下的經典 Jam Session 聖地。極近距離感受在地樂手的即興魅力與爵士魂，入場費約 1-3 千日圓。",
+          "links": [
+            { "label": "↗ 導航至 Intro 酒吧", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Spot+Intro+Takadanobaba", "style": "default" },
+            { "label": "↗ 晚餐推薦：炸豬排", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F2", "style": "default" }
+          ]
+        },
+        "dug": {
+          "title": "新宿 DUG 挪威的森林",
+          "meta": ["位置 / 新宿靖國通", "費用 / JR 轉乘約 150 日圓"],
+          "description": "晚餐可於新宿思出橫丁體驗日式燒鳥串燒。飯後朝聖《挪威的森林》主角渡邊與綠子喝酒的真實老牌爵士酒吧。在紅磚地下室點杯威士忌，聽著黑膠完美收尾。",
+          "links": [
+            { "label": "↗ 導航至 Cafe DUG", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Cafe+DUG+Shinjuku", "style": "default" },
+            { "label": "↗ 晚餐推薦：思出橫丁", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F3", "style": "default" }
+          ]
+        }
+      }
+    },
+    {
+      "timeId": "time-22",
+      "timeLabel": "22:00",
+      "phase": "return",
+      "action": "RETURN",
+      "routes": {
+        "all": {
+          "title": "各自返回池袋會合",
+          "meta": ["備註 / 全體使用 IC 卡刷卡進站，不需購買一日券"],
+          "description": "結束充實的一天。無論你在何處，搭乘東京綿密的地鐵與 JR 網路，都能快速回到池袋住宿處：<br>• 從日本橋/藏前：搭地鐵轉丸之內線直達。<br>• 從高田馬場 (Intro)：搭乘 JR 山手線 4 分鐘直達。<br>• 從新宿 (DUG)：搭乘 JR 山手線 6 分鐘直達。",
+          "links": [
+            { "label": "↗ 開啟導航回池袋站", "url": "https://www.google.com/maps/dir/?api=1&destination=Ikebukuro+Station", "style": "highlight" }
+          ]
+        }
+      }
+    }
+  ]
+}
