@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>點線極簡：東京分流同步計畫</title>
+    <title>Axis / 多線同步計畫</title>
     <style>
         /* =========================================
            1. Design Tokens (極簡設計變數)
@@ -11,10 +11,10 @@
         :root {
             --bg-color: #050505;       
             --text-primary: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.5); 
+            --text-muted: rgba(255, 255, 255, 0.4); 
             --line-color: rgba(255, 255, 255, 0.15);
             --accent-color: #ffffff;
-            --timeline-width: 200px;
+            --timeline-width: 220px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,6 +36,19 @@
         /* =========================================
            2. Floating Elements (浮動控制項)
            ========================================= */
+        /* 系統載入狀態 */
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: var(--text-muted);
+            z-index: 999;
+            transition: opacity 0.5s;
+        }
+
         .selector-container {
             position: fixed;
             top: 40px;
@@ -43,7 +56,7 @@
             z-index: 100;
             display: flex;
             gap: 10px;
-            background: rgba(20, 20, 20, 0.6);
+            background: rgba(10, 10, 10, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             padding: 6px;
@@ -63,12 +76,13 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 8px 20px;
+            padding: 8px 24px;
             border-radius: 30px;
             font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
+            outline: none;
         }
 
         .toggle-btn:hover { color: var(--text-primary); }
@@ -77,26 +91,27 @@
             color: var(--bg-color);
         }
 
-        /* 🔴 新增：當前時間定位鈕 (微光點) */
+        /* 呼吸燈淨化處理 (純粹正圓) */
         .time-anchor-btn {
             position: fixed;
             bottom: 40px;
             right: 60px;
-            width: 44px;
-            height: 44px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background-color: transparent;
-            border: 1px solid var(--line-color);
+            border: none; /* 移除任何預設邊框，消除X細線 */
+            outline: none;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 100;
-            transition: all 0.3s;
         }
 
         .time-anchor-btn::after {
             content: '';
+            display: block;
             width: 10px;
             height: 10px;
             background-color: var(--accent-color);
@@ -105,14 +120,9 @@
             animation: pulse 2s infinite;
         }
 
-        .time-anchor-btn:hover {
-            border-color: var(--text-primary);
-            transform: scale(1.05);
-        }
-
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
 
@@ -123,15 +133,18 @@
             display: flex;
             height: 100vh;
             width: 100vw;
+            opacity: 0; /* 預設隱藏，待 JSON 載入後淡入 */
+            transition: opacity 0.8s ease;
         }
 
+        /* 左側：時間軸 (Axis) */
         .sidebar {
             width: var(--timeline-width);
             height: 100vh;
             border-right: 1px solid var(--line-color);
             display: flex;
             align-items: center;
-            padding-left: 40px;
+            padding-left: 50px;
             position: relative;
             z-index: 50;
         }
@@ -195,11 +208,7 @@
             transform: scale(1.3);
         }
 
-        /* 收束點視覺強化 (Sync Node) */
-        .nav-item.sync-node::before {
-            border-radius: 2px; /* 方形代表終點/集合點 */
-        }
-
+        /* 右側：全螢幕滾動區 */
         .content-area {
             flex-grow: 1;
             height: 100vh;
@@ -213,10 +222,17 @@
             width: 100%;
             scroll-snap-align: start;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            align-items: center;
             padding: 0 80px;
             position: relative;
+        }
+
+        /* 內部軌道容器 (提供給電腦端並排使用) */
+        .section-track {
+            display: flex;
+            width: 100%;
+            gap: 60px;
+            max-height: 80vh;
         }
 
         /* =========================================
@@ -225,21 +241,30 @@
         .route-content {
             display: none; 
             animation: fadeIn 0.4s ease forwards;
+            overflow-y: auto; /* 長文本獨立滾動 */
+            padding-right: 15px;
         }
+        
+        .route-content::-webkit-scrollbar { display: none; }
 
-        body.route-day-a .content-day-a { display: block; }
-        body.route-day-b .content-day-b { display: block; }
-        body.route-night-shop .content-night-shop { display: block; }
-        body.route-night-intro .content-night-intro { display: block; }
-        body.route-night-dug .content-night-dug { display: block; }
+        /* 透過 body 屬性動態控制顯示狀態 (手機版專用) */
+        body[data-active-route="a"] .content-route-a { display: block; }
+        body[data-active-route="b"] .content-route-b { display: block; }
+        body[data-active-route="shop"] .content-route-shop { display: block; }
+        body[data-active-route="intro"] .content-route-intro { display: block; }
+        body[data-active-route="dug"] .content-route-dug { display: block; }
+        
+        /* 交集節點(Sync)不論選什麼路線都顯示 */
+        .content-route-all { display: block !important; }
 
         .time-header {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
             letter-spacing: 3px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
+            text-transform: uppercase;
         }
         
         .time-header::after {
@@ -252,28 +277,30 @@
         }
 
         .title {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 300;
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            line-height: 1.2;
         }
 
         .meta-info {
             font-size: 0.85rem;
             color: #888;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
-            gap: 20px;
-            border-left: 2px solid var(--line-color);
+            flex-direction: column;
+            gap: 8px;
+            border-left: 1px solid var(--line-color);
             padding-left: 15px;
         }
 
         .description {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 300;
             color: var(--text-muted);
-            max-width: 600px;
-            margin-bottom: 30px;
+            max-width: 500px;
+            margin-bottom: 40px;
             line-height: 1.8;
         }
 
@@ -310,11 +337,35 @@
         }
 
         /* =========================================
-           5. Mobile Optimization (手機版優化)
+           5. 響應式佈局 (電腦端並排 vs 手機端)
            ========================================= */
-        @media (max-width: 900px) {
+        
+        /* [電腦端] 上帝視角：多軌並排，隱藏切換器 */
+        @media (min-width: 900px) {
+            .selector-container { display: none !important; }
+            .route-content {
+                display: block !important; /* 強制全部顯示 */
+                flex: 1; /* 均分欄位寬度 */
+            }
+            .content-route-all {
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            /* 交集節點橫向引導線 */
+            .content-route-all .title::before {
+                content: '';
+                display: block;
+                width: 100px;
+                height: 1px;
+                background: var(--accent-color);
+                margin-bottom: 20px;
+            }
+        }
+
+        /* [手機/平板端] 單軌切換 */
+        @media (max-width: 899px) {
             .app-layout { flex-direction: column; }
-            
             .sidebar {
                 width: 100vw;
                 height: auto;
@@ -326,345 +377,220 @@
             .timeline-nav::before { display: none; }
             .nav-item { padding: 10px 20px; scroll-snap-align: start; }
             .nav-item::before { display: none; }
-            .nav-item.active { font-size: 1.1rem; border-bottom: 2px solid var(--accent-color); }
+            .nav-item.active { border-bottom: 2px solid var(--accent-color); padding-bottom: 8px; }
 
             .selector-container { top: 70px; right: 50%; transform: translateX(50%); width: max-content; }
             .selector-container.hidden { transform: translate(50%, -10px); }
 
-            .time-anchor-btn { bottom: 30px; right: 30px; width: 40px; height: 40px; }
+            .time-anchor-btn { bottom: 30px; right: 30px; width: 45px; height: 45px; }
 
-            .section { padding: 0 30px; }
-            .title { font-size: 2rem; }
+            .section { padding: 0 40px; }
+            .section-track { flex-direction: column; }
+            .title { font-size: 2.2rem; }
+            .description { max-width: 100%; }
         }
     </style>
 </head>
-<body class="route-day-a route-night-shop">
+<body data-active-route="a" data-active-night-route="shop">
 
-    <div id="day-selector" class="selector-container">
-        <button class="toggle-btn" data-route="a" onclick="setDayRoute('a', this)">清澄工藝線</button>
-        <button class="toggle-btn" data-route="b" onclick="setDayRoute('b', this)">村上文學線</button>
-    </div>
+    <div id="loader">SYNCING DATA...</div>
 
-    <div id="night-selector" class="selector-container hidden">
-        <button class="toggle-btn" data-route="shop" onclick="setNightRoute('shop', this)">質感購物</button>
-        <button class="toggle-btn" data-route="intro" onclick="setNightRoute('intro', this)">Intro爵士</button>
-        <button class="toggle-btn" data-route="dug" onclick="setNightRoute('dug', this)">DUG爵士</button>
-    </div>
+    <div id="day-selector" class="selector-container hidden"></div>
+    <div id="night-selector" class="selector-container hidden"></div>
 
-    <!-- 🟢 新增：定位回當前時間的按鈕 -->
-    <button class="time-anchor-btn" onclick="scrollToCurrentTime()" title="回到當下行程"></button>
+    <button class="time-anchor-btn" onclick="scrollToCurrentTime()" title="返回當下時間"></button>
 
-    <div class="app-layout">
-        
+    <div class="app-layout" id="app-layout">
         <nav class="sidebar scroll-container">
-            <div class="timeline-nav">
-                <a href="#time-10" class="nav-item active">10:00</a>
-                <a href="#time-11" class="nav-item">11:00</a>
-                <a href="#time-13" class="nav-item">13:30</a>
-                <a href="#time-15" class="nav-item">15:00</a>
-                <a href="#time-18" class="nav-item">18:00</a>
-                <a href="#time-22" class="nav-item sync-node">22:00</a>
-            </div>
+            <div class="timeline-nav" id="timeline-nav">
+                </div>
         </nav>
-
         <main class="content-area scroll-container" id="scroll-area">
-            
-            <section id="time-10" class="section" data-phase="day">
-                <div class="route-content content-day-a">
-                    <div class="time-header">10:00 DEPARTURE</div>
-                    <h2 class="title">木場公園</h2>
-                    <div class="meta-info">
-                        <span>🚃 有樂町線轉東西線 ➔ 木場站</span>
-                        <span>🎟️ 250 日圓</span>
-                    </div>
-                    <p class="description">
-                        早年為木材集散地，現已重劃為廣大的綠地公園。園內著名的白色大吊橋設計俐落，非常適合早晨散步、沉澱思緒，為一整天的質感之旅拉開序幕。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Kiba+Park+Tokyo" target="_blank" class="nav-btn">📍 導航至 木場公園</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-day-b">
-                    <div class="time-header">10:00 DEPARTURE</div>
-                    <h2 class="title">早稻田 村上春樹圖書館</h2>
-                    <div class="meta-info">
-                        <span>🚃 山手線轉東西線 ➔ 早稻田站</span>
-                        <span>🎟️ 330 日圓</span>
-                    </div>
-                    <p class="description">
-                        由建築大師隈研吾親自操刀，絕美的木質階梯書架充滿溫潤感。館內展出大量初版書籍、《海邊的卡夫卡》原稿，並播放著村上私藏的黑膠唱片。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=The+Waseda+International+House+of+Literature" target="_blank" class="nav-btn">📍 導航至 圖書館</a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="time-11" class="section" data-phase="day">
-                <div class="route-content content-day-a">
-                    <div class="time-header">11:00 EXPLORE</div>
-                    <h2 class="title">東京都現代美術館 (MOT)</h2>
-                    <div class="meta-info">
-                        <span>🚶 從木場公園步行 10-15 分</span>
-                        <span>🎟️ 常設展 500 日圓</span>
-                    </div>
-                    <p class="description">
-                        建築師柳澤孝彥設計，大量使用鋼架與幾何線條，光影層次豐富。觀展之餘，也非常適合為平面設計或材質拼貼尋找深刻的空間啟發。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Museum+of+Contemporary+Art+Tokyo" target="_blank" class="nav-btn">📍 導航至 美術館</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-day-b">
-                    <div class="time-header">11:00 EXPLORE</div>
-                    <h2 class="title">神宮外苑銀杏大道</h2>
-                    <div class="meta-info">
-                        <span>🚃 東西線轉半藏門線 ➔ 青山一丁目</span>
-                        <span>🎟️ 210 日圓</span>
-                    </div>
-                    <p class="description">
-                        「那一刻，沒有任何徵兆，我突然心想：對了，我也來寫小說看看吧。」漫步神宮球場外苑，回到村上決定成為作家的靈感發源地。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Meiji+Jingu+Gaien" target="_blank" class="nav-btn">📍 導航至 神宮外苑</a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="time-13" class="section" data-phase="day">
-                <div class="route-content content-day-a">
-                    <div class="time-header">13:30 LUNCH</div>
-                    <h2 class="title">清澄白河 街區美食</h2>
-                    <div class="meta-info"><span>🚶 美術館周邊步行</span></div>
-                    <p class="description">
-                        不吃美術館餐廳，帶你走入周邊街區品嚐在地平價選擇。「深川宿」品嚐江戶時代漁夫的傳統料理蛤蜊飯；或是前往「滿留賀」享用道地的傳統炸蝦蕎麥麵。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Fukagawajuku+Tomioka+Hachiman" target="_blank" class="nav-btn">📍 導航 深川宿 (約1500円)</a>
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Maruka+Soba+Kiyosumi+Shirakawa" target="_blank" class="nav-btn">📍 導航 滿留賀 (約1000円)</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-day-b">
-                    <div class="time-header">13:30 LUNCH</div>
-                    <h2 class="title">早稻田 學區記憶</h2>
-                    <div class="meta-info"><span>🚶 圖書館周邊步行</span></div>
-                    <p class="description">
-                        午餐可直接在圖書館附設的「橙子咖啡」享用村上春樹特製焙煎咖啡與簡餐；或是走入早稻田學區，尋找充滿青春氣息的平價豬排咖哩飯。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F0" target="_blank" class="nav-btn">📍 導航 橙子咖啡</a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="time-15" class="section" data-phase="day">
-                <div class="route-content content-day-a">
-                    <div class="time-header">15:00 BREAK</div>
-                    <h2 class="title">藍瓶咖啡 旗艦店</h2>
-                    <div class="meta-info"><span>🚶 午餐後散步抵達</span></div>
-                    <p class="description">
-                        日本藍瓶一號店。挑高且充滿金屬機械質感的工業風烘豆廠空間，結合職人精準的手沖技術。推薦品嚐明亮果酸的單品手沖 (Single Origin Drip)。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Blue+Bottle+Coffee+Kiyosumi+Shirakawa" target="_blank" class="nav-btn">📍 導航至 藍瓶咖啡</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-day-b">
-                    <div class="time-header">15:00 BREAK</div>
-                    <h2 class="title">千駄谷 Peter Cat 舊址</h2>
-                    <div class="meta-info"><span>🚶 從神宮外苑散步 15 分鐘</span></div>
-                    <p class="description">
-                        在成為專職作家之前，村上春樹與妻子曾在千駄谷經營爵士酒吧。漫步在這片寧靜街區，找家獨立咖啡館點杯黑咖啡，感受《1973年的彈珠玩具》的孤獨氛圍。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Sendagaya+Station" target="_blank" class="nav-btn">📍 導航至 千駄谷</a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="time-18" class="section" data-phase="night">
-                
-                <div class="route-content content-night-shop">
-                    <div class="time-header">18:00 NIGHT SPLIT</div>
-                    <h2 class="title">工藝購物與天婦羅</h2>
-                    <div class="meta-info">
-                        <span>📍 藏前 / 日本橋商圈</span>
-                        <span>🎟️ 轉乘約 180 日圓</span>
-                    </div>
-                    <p class="description">
-                        把握店家打烊前，前往藏前體驗「Kakimori」自組筆記本，或至日本橋 Coredo 室町尋找和風生活道具。晚餐推薦至日本橋享用頂級江戶前天婦羅 (如金子半之助)。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=COREDO+Muromachi" target="_blank" class="nav-btn">📍 導航 日本橋</a>
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Kakimori+Kuramae+Tokyo" target="_blank" class="nav-btn">📍 導航 藏前</a>
-                        <a href="https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F1" target="_blank" class="nav-btn">📍 晚餐 金子半之助</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-night-intro">
-                    <div class="time-header">18:00 NIGHT SPLIT</div>
-                    <h2 class="title">高田馬場 Intro 爵士夜</h2>
-                    <div class="meta-info">
-                        <span>📍 高田馬場</span>
-                        <span>🎟️ 轉乘約 250 日圓</span>
-                    </div>
-                    <p class="description">
-                        晚餐先享用高田馬場著名的炸豬排，隨後潛入這間隱身地下的經典 Jam Session 聖地。極近距離感受在地樂手的即興魅力與爵士魂，入場費約 1-3 千日圓。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Jazz+Spot+Intro+Takadanobaba" target="_blank" class="nav-btn">📍 導航 Intro 酒吧</a>
-                        <a href="https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F2" target="_blank" class="nav-btn">📍 晚餐 推薦炸豬排</a>
-                    </div>
-                </div>
-
-                <div class="route-content content-night-dug">
-                    <div class="time-header">18:00 NIGHT SPLIT</div>
-                    <h2 class="title">新宿 DUG 挪威的森林</h2>
-                    <div class="meta-info">
-                        <span>📍 新宿靖國通</span>
-                        <span>🎟️ JR 轉乘約 150 日圓</span>
-                    </div>
-                    <p class="description">
-                        晚餐可於新宿思出橫丁體驗日式燒鳥串燒。飯後朝聖《挪威的森林》主角渡邊與綠子喝酒的真實老牌爵士酒吧。在紅磚地下室點杯威士忌，聽著黑膠完美收尾。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Jazz+Cafe+DUG+Shinjuku" target="_blank" class="nav-btn">📍 導航 Cafe DUG</a>
-                        <a href="https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F3" target="_blank" class="nav-btn">📍 晚餐 思出橫丁</a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="time-22" class="section" data-phase="return">
-                <div class="route-content content-night-shop content-night-intro content-night-dug">
-                    <div class="time-header">22:00 RETURN</div>
-                    <h2 class="title">各自返回池袋會合</h2>
-                    <div class="meta-info"><span>💡 全體使用 IC 卡刷卡進站，不需購買一日券</span></div>
-                    <p class="description">
-                        結束充實的一天。無論你在何處，搭乘東京綿密的地鐵與 JR 網路，都能快速回到池袋住宿處：<br>
-                        • 從日本橋/藏前：搭地鐵轉丸之內線直達。<br>
-                        • 從高田馬場 (Intro)：搭乘 JR 山手線 4 分鐘直達。<br>
-                        • 從新宿 (DUG)：搭乘 JR 山手線 6 分鐘直達。
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=Ikebukuro+Station" target="_blank" class="nav-btn" style="border-color:#fff;">📍 開啟導航回 池袋站</a>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+            </main>
     </div>
 
     <script>
-        // --- 1. 初始化與狀態讀取 (Session Storage) ---
-        function loadSavedState() {
-            const savedDayRoute = sessionStorage.getItem('dayRoute') || 'a';
-            const savedNightRoute = sessionStorage.getItem('nightRoute') || 'shop';
+        // --- 核心狀態管理 ---
+        const state = {
+            dayRoute: sessionStorage.getItem('axisDayRoute') || 'a',
+            nightRoute: sessionStorage.getItem('axisNightRoute') || 'shop'
+        };
 
-            // 觸發對應的按鈕邏輯
-            const dayBtn = document.querySelector(`#day-selector .toggle-btn[data-route="${savedDayRoute}"]`);
-            if(dayBtn) setDayRoute(savedDayRoute, dayBtn);
-
-            const nightBtn = document.querySelector(`#night-selector .toggle-btn[data-route="${savedNightRoute}"]`);
-            if(nightBtn) setNightRoute(savedNightRoute, nightBtn);
-        }
-
-        // --- 2. 頂部切換器邏輯 (寫入狀態並更新 Class) ---
-        function setDayRoute(route, btnElement) {
-            document.querySelectorAll('#day-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            
-            document.body.classList.remove('route-day-a', 'route-day-b');
-            document.body.classList.add(`route-day-${route}`);
-            sessionStorage.setItem('dayRoute', route); // 保存狀態
-        }
-
-        function setNightRoute(route, btnElement) {
-            document.querySelectorAll('#night-selector .toggle-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            
-            document.body.classList.remove('route-night-shop', 'route-night-intro', 'route-night-dug');
-            document.body.classList.add(`route-night-${route}`);
-            sessionStorage.setItem('nightRoute', route); // 保存狀態
-        }
-
-        // --- 3. 智能時間定位邏輯 ---
-        function scrollToCurrentTime() {
-            const currentHour = new Date().getHours();
-            let targetId = "time-10"; // 預設早晨
-            
-            // 簡易的時間分段判斷
-            if (currentHour >= 22 || currentHour < 4) {
-                targetId = "time-22";
-            } else if (currentHour >= 18) {
-                targetId = "time-18";
-            } else if (currentHour >= 15) {
-                targetId = "time-15";
-            } else if (currentHour >= 13) {
-                targetId = "time-13";
-            } else if (currentHour >= 11) {
-                targetId = "time-11";
-            }
-
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        // --- 4. 滾動偵測與時間軸同步 (Intersection Observer) ---
+        // --- 1. 初始化資料抓取 (Fetch JSON) ---
         document.addEventListener("DOMContentLoaded", () => {
-            loadSavedState(); // 網頁載入時恢復上次選擇的路線
+            // 強制加上時間戳記避免快取
+            fetch(`data.json?v=${new Date().getTime()}`)
+                .then(response => {
+                    if(!response.ok) throw new Error("JSON Fetch Failed");
+                    return response.json();
+                })
+                .then(data => {
+                    renderUI(data);
+                    document.getElementById('loader').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('app-layout').style.opacity = '1';
+                        initObservers();
+                        applySavedState();
+                    }, 500);
+                })
+                .catch(error => {
+                    document.getElementById('loader').innerText = "DATA SYNC FAILED.";
+                    console.error("載入 JSON 發生錯誤，請確認檔案是否存在並使用 Live Server 運行。", error);
+                });
+        });
 
+        // --- 2. 介面渲染邏輯 (DOM Generation) ---
+        function renderUI(data) {
+            // 渲染頂部切換按鈕
+            renderSelectors('day-selector', data.config.dayRoutes, 'day');
+            renderSelectors('night-selector', data.config.nightRoutes, 'night');
+
+            const navContainer = document.getElementById('timeline-nav');
+            const scrollArea = document.getElementById('scroll-area');
+
+            data.schedule.forEach((point, index) => {
+                // 渲染左側時間軸
+                const navHTML = `<a href="#${point.timeId}" class="nav-item ${index === 0 ? 'active' : ''}">${point.timeLabel}</a>`;
+                navContainer.insertAdjacentHTML('beforeend', navHTML);
+
+                // 渲染右側內容區
+                let routesHTML = '';
+                for (const [routeKey, routeData] of Object.entries(point.routes)) {
+                    
+                    // 組合 meta 資訊
+                    let metaHTML = routeData.meta.map(m => `<span>${m}</span>`).join('');
+                    
+                    // 組合 按鈕
+                    let btnsHTML = routeData.links.map(link => 
+                        `<a href="${link.url}" target="_blank" class="nav-btn">${link.label}</a>`
+                    ).join('');
+
+                    routesHTML += `
+                        <div class="route-content content-route-${routeKey}">
+                            <div class="time-header">${point.timeLabel} ${point.action}</div>
+                            <h2 class="title">${routeData.title}</h2>
+                            <div class="meta-info">${metaHTML}</div>
+                            <p class="description">${routeData.description}</p>
+                            <div class="btn-group">${btnsHTML}</div>
+                        </div>
+                    `;
+                }
+
+                const sectionHTML = `
+                    <section id="${point.timeId}" class="section" data-phase="${point.phase}">
+                        <div class="section-track">
+                            ${routesHTML}
+                        </div>
+                    </section>
+                `;
+                scrollArea.insertAdjacentHTML('beforeend', sectionHTML);
+            });
+        }
+
+        function renderSelectors(containerId, routesArray, phase) {
+            const container = document.getElementById(containerId);
+            routesArray.forEach(route => {
+                const btn = document.createElement('button');
+                btn.className = `toggle-btn`;
+                btn.innerText = route.label;
+                btn.dataset.route = route.id;
+                btn.onclick = (e) => setRoute(route.id, phase, e.target);
+                container.appendChild(btn);
+            });
+        }
+
+        // --- 3. 路線切換與狀態寫入 ---
+        function setRoute(routeId, phase, btnElement) {
+            // 更新 UI 狀態
+            const container = btnElement.parentElement;
+            container.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // 寫入 Body Attribute 控制顯示
+            if (phase === 'day') {
+                document.body.setAttribute('data-active-route', routeId);
+                sessionStorage.setItem('axisDayRoute', routeId);
+            } else {
+                document.body.setAttribute('data-active-night-route', routeId);
+                // 同步綁定到主屬性，方便 CSS 統一控制
+                document.body.setAttribute('data-active-route', routeId); 
+                sessionStorage.setItem('axisNightRoute', routeId);
+            }
+        }
+
+        function applySavedState() {
+            const savedDayBtn = document.querySelector(`#day-selector .toggle-btn[data-route="${state.dayRoute}"]`);
+            if(savedDayBtn) savedDayBtn.classList.add('active');
+            
+            const savedNightBtn = document.querySelector(`#night-selector .toggle-btn[data-route="${state.nightRoute}"]`);
+            if(savedNightBtn) savedNightBtn.classList.add('active');
+            
+            document.body.setAttribute('data-active-route', state.dayRoute);
+        }
+
+        // --- 4. 滾動同步與時間定位 (Intersection Observer) ---
+        function initObservers() {
             const sections = document.querySelectorAll(".section");
             const navItems = document.querySelectorAll(".nav-item");
             const scrollArea = document.getElementById("scroll-area");
-            
             const daySelector = document.getElementById("day-selector");
             const nightSelector = document.getElementById("night-selector");
-
-            const observerOptions = {
-                root: scrollArea,
-                rootMargin: "-20% 0px -50% 0px", 
-                threshold: 0
-            };
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const id = entry.target.getAttribute("id");
+                        const phase = entry.target.getAttribute("data-phase");
+
+                        // 1. 聯動左側選單
                         navItems.forEach(item => item.classList.remove("active"));
                         const activeLink = document.querySelector(`.nav-item[href="#${id}"]`);
                         if (activeLink) activeLink.classList.add("active");
 
-                        const phase = entry.target.getAttribute("data-phase");
+                        // 2. 聯動頂部控制項並套用對應的 Session 狀態
                         if (phase === "day") {
                             daySelector.classList.remove("hidden");
                             nightSelector.classList.add("hidden");
+                            document.body.setAttribute('data-active-route', sessionStorage.getItem('axisDayRoute') || 'a');
                         } else if (phase === "night") {
                             daySelector.classList.add("hidden");
                             nightSelector.classList.remove("hidden");
+                            document.body.setAttribute('data-active-route', sessionStorage.getItem('axisNightRoute') || 'shop');
                         } else {
+                            // return (收束階段)，隱藏選擇器
                             daySelector.classList.add("hidden");
                             nightSelector.classList.add("hidden");
                         }
                     }
                 });
-            }, observerOptions);
+            }, { root: scrollArea, rootMargin: "-20% 0px -50% 0px", threshold: 0 });
 
             sections.forEach(section => observer.observe(section));
 
+            // 左側時間軸點擊平滑滾動
             navItems.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-                    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById(this.getAttribute('href').substring(1)).scrollIntoView({ behavior: 'smooth' });
                 });
             });
-        });
+        }
+
+        // --- 5. 時間錨點運算邏輯 ---
+        function scrollToCurrentTime() {
+            const currentHour = new Date().getHours();
+            let targetId = "time-10"; 
+            
+            if (currentHour >= 22 || currentHour < 4) targetId = "time-22";
+            else if (currentHour >= 18) targetId = "time-18";
+            else if (currentHour >= 15) targetId = "time-15";
+            else if (currentHour >= 13) targetId = "time-13";
+            else if (currentHour >= 11) targetId = "time-11";
+
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
