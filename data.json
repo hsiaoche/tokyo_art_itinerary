@@ -1,9 +1,25 @@
 {
   "config": {
-    "siteTitle": "點線極簡：東京分流同步計畫",
+    "siteTitle": "Axis / 東京同步計畫",
     "dayRoutes": [
-      { "id": "a", "label": "清澄工藝線" },
-      { "id": "b", "label": "村上文學線" }
+      {
+        "id": "a",
+        "label": "清澄工藝線",
+        "overview": {
+          "title": "清澄工藝線",
+          "flow": "( ) -> ( ) -> ( )\n             |\n( ) <- ( ) <-( )",
+          "meta": ["預算 / 約 3000 日圓", "票券 / 地鐵一日券"]
+        }
+      },
+      {
+        "id": "b",
+        "label": "村上文學線",
+        "overview": {
+          "title": "村上文學線",
+          "flow": "( ) -> ( ) -> ( )\n             |\n( ) <- ( ) <-( )",
+          "meta": ["預算 / 約 2500 日圓", "票券 / 沿線刷卡"]
+        }
+      }
     ],
     "nightRoutes": [
       { "id": "shop", "label": "質感購物" },
@@ -71,8 +87,8 @@
           "meta": ["步行 / 美術館周邊散步"],
           "description": "不吃美術館餐廳，帶你走入周邊街區品嚐在地平價選擇。「深川宿」品嚐江戶時代漁夫的傳統料理蛤蜊飯；或是前往「滿留賀」享用道地的傳統炸蝦蕎麥麵。",
           "links": [
-            { "label": "↗ 導航至深川宿 (約1500円)", "url": "https://www.google.com/maps/dir/?api=1&destination=Fukagawajuku+Tomioka+Hachiman", "style": "default" },
-            { "label": "↗ 導航至滿留賀 (約1000円)", "url": "https://www.google.com/maps/dir/?api=1&destination=Maruka+Soba+Kiyosumi+Shirakawa", "style": "default" }
+            { "label": "↗ 導航至深川宿", "url": "https://www.google.com/maps/dir/?api=1&destination=Fukagawajuku+Tomioka+Hachiman", "style": "default" },
+            { "label": "↗ 導航至滿留賀", "url": "https://www.google.com/maps/dir/?api=1&destination=Maruka+Soba+Kiyosumi+Shirakawa", "style": "default" }
           ]
         },
         "b": {
@@ -118,11 +134,10 @@
         "shop": {
           "title": "工藝購物與天婦羅",
           "meta": ["位置 / 藏前與日本橋商圈", "費用 / 轉乘約 180 日圓"],
-          "description": "把握店家打烊前，前往藏前體驗「Kakimori」自組筆記本，或至日本橋 Coredo 室町尋找和風生活道具。晚餐推薦至日本橋享用頂級江戶前天婦羅 (如金子半之助)。",
+          "description": "把握店家打烊前，前往藏前體驗「Kakimori」自組筆記本，或至日本橋 Coredo 室町尋找和風生活道具。晚餐推薦至日本橋享用頂級江戶前天婦羅。",
           "links": [
             { "label": "↗ 導航至日本橋", "url": "https://www.google.com/maps/dir/?api=1&destination=COREDO+Muromachi", "style": "default" },
-            { "label": "↗ 導航至藏前", "url": "https://www.google.com/maps/dir/?api=1&destination=Kakimori+Kuramae+Tokyo", "style": "default" },
-            { "label": "↗ 晚餐：金子半之助", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F1", "style": "default" }
+            { "label": "↗ 導航至藏前", "url": "https://www.google.com/maps/dir/?api=1&destination=Kakimori+Kuramae+Tokyo", "style": "default" }
           ]
         },
         "intro": {
@@ -130,8 +145,7 @@
           "meta": ["位置 / 高田馬場", "費用 / 轉乘約 250 日圓"],
           "description": "晚餐先享用高田馬場著名的炸豬排，隨後潛入這間隱身地下的經典 Jam Session 聖地。極近距離感受在地樂手的即興魅力與爵士魂，入場費約 1-3 千日圓。",
           "links": [
-            { "label": "↗ 導航至 Intro 酒吧", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Spot+Intro+Takadanobaba", "style": "default" },
-            { "label": "↗ 晚餐推薦：炸豬排", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F2", "style": "default" }
+            { "label": "↗ 導航至 Intro 酒吧", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Spot+Intro+Takadanobaba", "style": "default" }
           ]
         },
         "dug": {
@@ -139,8 +153,7 @@
           "meta": ["位置 / 新宿靖國通", "費用 / JR 轉乘約 150 日圓"],
           "description": "晚餐可於新宿思出橫丁體驗日式燒鳥串燒。飯後朝聖《挪威的森林》主角渡邊與綠子喝酒的真實老牌爵士酒吧。在紅磚地下室點杯威士忌，聽著黑膠完美收尾。",
           "links": [
-            { "label": "↗ 導航至 Cafe DUG", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Cafe+DUG+Shinjuku", "style": "default" },
-            { "label": "↗ 晚餐推薦：思出橫丁", "url": "https://www.google.com/maps/d/u/0/embed?mid=1s5qLoY2CAyHine-HdIKiUa0K3LP5n_8&ehbc=2E312F3", "style": "default" }
+            { "label": "↗ 導航至 Cafe DUG", "url": "https://www.google.com/maps/dir/?api=1&destination=Jazz+Cafe+DUG+Shinjuku", "style": "default" }
           ]
         }
       }
@@ -154,7 +167,7 @@
         "all": {
           "title": "各自返回池袋會合",
           "meta": ["備註 / 全體使用 IC 卡刷卡進站，不需購買一日券"],
-          "description": "結束充實的一天。無論你在何處，搭乘東京綿密的地鐵與 JR 網路，都能快速回到池袋住宿處：<br>• 從日本橋/藏前：搭地鐵轉丸之內線直達。<br>• 從高田馬場 (Intro)：搭乘 JR 山手線 4 分鐘直達。<br>• 從新宿 (DUG)：搭乘 JR 山手線 6 分鐘直達。",
+          "description": "結束充實的一天。無論你在何處，搭乘東京綿密的地鐵與 JR 網路，都能快速回到池袋住宿處：\n從日本橋/藏前：搭地鐵轉丸之內線直達。\n從高田馬場：搭乘 JR 山手線 4 分鐘直達。\n從新宿：搭乘 JR 山手線 6 分鐘直達。",
           "links": [
             { "label": "↗ 開啟導航回池袋站", "url": "https://www.google.com/maps/dir/?api=1&destination=Ikebukuro+Station", "style": "highlight" }
           ]
