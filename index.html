@@ -34,7 +34,7 @@
         .scroll-container::-webkit-scrollbar { display: none; }
 
         /* =========================================
-           2. Floating Elements (浮動控制項)
+           2. 系統狀態與微文案 (UX 升級)
            ========================================= */
         #loader {
             position: fixed;
@@ -46,75 +46,64 @@
             color: var(--text-muted);
             z-index: 999;
             transition: opacity 0.5s;
+            text-align: center;
         }
 
+        .error-msg { color: #ff5555; margin-bottom: 10px; }
+        
+        .retry-btn {
+            background: transparent; border: 1px solid var(--line-color);
+            color: var(--text-primary); padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-size: 0.8rem; letter-spacing: 2px;
+            margin-top: 15px; display: none;
+        }
+
+        /* 浮動按鈕區 */
         .selector-container {
-            position: fixed;
-            top: 40px;
-            right: 60px;
-            z-index: 100;
-            display: flex;
-            gap: 10px;
+            position: fixed; top: 40px; right: 60px; z-index: 100;
+            display: flex; gap: 10px;
             background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 6px;
-            border-radius: 40px;
-            border: 1px solid var(--line-color);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 6px; border-radius: 40px; border: 1px solid var(--line-color);
             transition: opacity 0.3s, transform 0.3s;
         }
 
         .selector-container.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-10px);
-            position: absolute; 
+            opacity: 0; pointer-events: none;
+            transform: translateY(-10px); position: absolute; 
         }
 
         .toggle-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 24px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            outline: none;
+            background: transparent; border: none; color: var(--text-muted);
+            padding: 8px 24px; border-radius: 30px; font-size: 0.9rem;
+            font-weight: 500; cursor: pointer; transition: all 0.3s; outline: none;
         }
 
         .toggle-btn:hover { color: var(--text-primary); }
-        .toggle-btn.active {
-            background: var(--text-primary);
-            color: var(--bg-color);
+        .toggle-btn.active { background: var(--text-primary); color: var(--bg-color); }
+
+        /* 呼吸燈與微文案 */
+        .anchor-wrapper {
+            position: fixed; bottom: 40px; right: 60px; z-index: 100;
+            display: flex; align-items: center; gap: 15px;
         }
 
-        /* 呼吸燈 (純粹正圓) */
-        .time-anchor-btn {
-            position: fixed;
-            bottom: 40px;
-            right: 60px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: transparent;
-            border: none; 
-            outline: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 100;
+        .micro-copy {
+            font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted);
+            transition: opacity 0.5s; pointer-events: none;
         }
+
+        .time-anchor-btn {
+            width: 50px; height: 50px; border-radius: 50px;
+            background-color: transparent; border: 1px solid transparent; 
+            outline: none; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: border 0.3s;
+        }
+        .time-anchor-btn:hover { border: 1px solid var(--line-color); }
 
         .time-anchor-btn::after {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
+            content: ''; display: block; width: 8px; height: 8px;
+            background-color: var(--accent-color); border-radius: 50%;
             box-shadow: 0 0 10px rgba(255,255,255,0.8);
             animation: pulse 2s infinite;
         }
@@ -126,110 +115,72 @@
         }
 
         /* =========================================
-           3. Layout Architecture (左右佈局)
+           3. Layout Architecture (左右佈局與磁吸強化)
            ========================================= */
         .app-layout {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            opacity: 0; 
-            transition: opacity 0.8s ease;
+            display: flex; height: 100vh; width: 100vw;
+            opacity: 0; transition: opacity 0.8s ease;
         }
 
-        /* 左側：水平線段時間軸 (依照手稿重構) */
+        /* 左側：水平線段時間軸 */
         .sidebar {
-            width: var(--timeline-width);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            padding-left: 60px;
-            position: relative;
-            z-index: 50;
+            width: var(--timeline-width); height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 50;
         }
 
         .timeline-nav {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+            display: flex; flex-direction: column; gap: 20px;
         }
 
+        /* 平行線設計：文字在右，線條在左 */
         .nav-item {
-            position: relative;
-            padding: 24px 0 24px 30px; /* 留出左側線段空間 */
-            text-decoration: none;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            font-weight: 300;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
+            text-decoration: none; color: var(--text-muted);
+            font-size: 1rem; font-weight: 300; transition: all 0.3s;
+            display: flex; align-items: center; gap: 12px;
         }
 
-        /* 水平線段 (Dashes) 取代原有的圓點與垂直線 */
         .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            width: 12px;
-            height: 1px;
-            background-color: var(--line-color);
-            transition: all 0.3s ease;
+            content: ''; width: 15px; height: 1px;
+            background-color: var(--line-color); transition: all 0.3s ease;
         }
 
         .nav-item:hover { color: var(--text-primary); }
-        .nav-item:hover::before { width: 18px; background-color: var(--text-primary); }
+        .nav-item:hover::before { width: 25px; background-color: var(--text-muted); }
 
         .nav-item.active {
-            color: var(--text-primary);
-            font-size: 1.4rem;
-            font-weight: 500;
+            color: var(--text-primary); font-size: 1.2rem; font-weight: 500;
         }
-
         .nav-item.active::before {
-            width: 24px;
-            height: 2px;
-            background-color: var(--accent-color);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+            width: 40px; height: 2px; background-color: var(--accent-color);
         }
 
-        /* 右側：全螢幕滾動區 (除錯：完美置中磁吸) */
+        /* 右側：全螢幕滾動區 (嚴格對齊設定) */
         .content-area {
-            flex-grow: 1;
-            height: 100vh;
-            overflow-y: auto; 
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
+            flex-grow: 1; height: 100vh; overflow-y: scroll; 
+            scroll-snap-type: y mandatory; scroll-behavior: smooth;
         }
 
         .section {
-            height: 100vh;
-            width: 100%;
-            /* 修正為 center 確保上下完美對齊不跑版 */
+            height: 100vh; width: 100%;
+            flex-shrink: 0; /* 確保不被壓縮 */
             scroll-snap-align: center; 
-            scroll-snap-stop: always;
-            display: flex;
-            align-items: center; 
-            padding: 0 80px;
-            position: relative;
+            scroll-snap-stop: always; /* 強制在每個區塊煞車 */
+            display: flex; align-items: center; 
+            padding: 0 80px; position: relative;
         }
 
         .section-track {
-            display: flex;
-            width: 100%;
-            gap: 60px;
-            max-height: 85vh;
+            display: flex; width: 100%; gap: 60px; max-height: 85vh;
         }
 
         /* =========================================
-           4. Content Styling (內容與首頁排版)
+           4. Content Styling (內容與流程圖排版)
            ========================================= */
         .route-content {
-            display: none; 
-            animation: fadeIn 0.4s ease forwards;
-            overflow-y: auto;
-            padding-right: 15px;
+            display: none; animation: fadeIn 0.4s ease forwards;
+            overflow-y: auto; padding-right: 15px;
         }
-        
         .route-content::-webkit-scrollbar { display: none; }
 
         body[data-active-route="a"] .content-route-a { display: block; }
@@ -240,90 +191,58 @@
         .content-route-all { display: block !important; }
 
         .time-header {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            letter-spacing: 3px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            text-transform: uppercase;
+            font-size: 0.85rem; color: var(--text-muted); letter-spacing: 3px;
+            margin-bottom: 16px; display: flex; align-items: center;
         }
-        
         .time-header::after {
-            content: '';
-            display: inline-block;
-            width: 40px;
-            height: 1px;
-            background-color: var(--line-color);
-            margin-left: 20px;
+            content: ''; display: inline-block; width: 30px; height: 1px;
+            background-color: var(--line-color); margin-left: 15px;
         }
 
         .title {
-            font-size: 2.8rem;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-bottom: 24px;
-            line-height: 1.2;
+            font-size: 2.8rem; font-weight: 300; letter-spacing: 1px;
+            margin-bottom: 30px; line-height: 1.2;
         }
 
-        /* 總覽頁的純文字幾何流程圖 */
+        /* CSS 幾何流程圖 */
         .flow-diagram {
-            font-family: monospace;
-            font-size: 1.2rem;
-            color: var(--text-primary);
-            white-space: pre-wrap; /* 保留 JSON 裡的換行排版 */
-            line-height: 1.5;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-            opacity: 0.8;
+            display: flex; align-items: center; flex-wrap: wrap;
+            gap: 12px; margin-bottom: 40px;
+        }
+
+        .flow-node {
+            font-size: 0.85rem; letter-spacing: 1px;
+            padding: 8px 16px; border: 1px solid var(--line-color);
+            border-radius: 30px; color: var(--text-primary);
+        }
+
+        .flow-arrow {
+            width: 20px; height: 1px; background-color: var(--line-color);
         }
 
         .meta-info {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-left: 1px solid var(--line-color);
-            padding-left: 15px;
+            font-size: 0.85rem; color: #888; margin-bottom: 24px;
+            display: flex; flex-direction: column; gap: 8px;
+            border-left: 1px solid var(--line-color); padding-left: 15px;
         }
 
         .description {
-            font-size: 0.95rem;
-            font-weight: 300;
-            color: var(--text-muted);
-            max-width: 500px;
-            margin-bottom: 40px;
-            line-height: 1.8;
+            font-size: 0.95rem; font-weight: 300; color: var(--text-muted);
+            max-width: 500px; margin-bottom: 40px; line-height: 1.8;
             white-space: pre-line;
         }
 
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; }
 
         .nav-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 24px;
-            border: 1px solid var(--line-color);
-            border-radius: 50px;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            background: transparent;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 24px; border: 1px solid var(--line-color);
+            border-radius: 50px; color: var(--text-primary); text-decoration: none;
+            font-size: 0.85rem; letter-spacing: 1px; transition: all 0.3s;
         }
 
         .nav-btn:hover {
-            background: var(--text-primary);
-            color: var(--bg-color);
-            border-color: var(--text-primary);
+            background: var(--text-primary); color: var(--bg-color); border-color: var(--text-primary);
         }
 
         @keyframes fadeIn {
@@ -336,43 +255,31 @@
            ========================================= */
         @media (min-width: 900px) {
             .selector-container { display: none !important; }
-            .route-content {
-                display: block !important; 
-                flex: 1; 
-            }
-            .content-route-all {
-                flex: 1 1 100%;
-                display: flex;
-                flex-direction: column;
-            }
+            .route-content { display: block !important; flex: 1; }
+            .content-route-all { flex: 1 1 100%; display: flex; flex-direction: column; }
             .content-route-all .title::before {
-                content: '';
-                display: block;
-                width: 100px;
-                height: 1px;
-                background: var(--accent-color);
-                margin-bottom: 20px;
+                content: ''; display: block; width: 100px; height: 1px;
+                background: var(--accent-color); margin-bottom: 20px;
             }
         }
 
         @media (max-width: 899px) {
             .app-layout { flex-direction: column; }
-            .sidebar {
-                width: 100vw;
-                height: auto;
-                padding: 10px 20px;
-            }
-            .timeline-nav { flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; }
+            .sidebar { width: 100vw; height: auto; padding: 20px 20px 10px 20px; }
             
-            /* 手機版改回底部橫線對齊 */
-            .nav-item { padding: 10px 20px; scroll-snap-align: start; }
-            .nav-item::before { display: none; }
-            .nav-item.active { border-bottom: 2px solid var(--accent-color); padding-bottom: 8px; }
+            /* 手機版時間軸改回頂部，但保留平行線邏輯 */
+            .timeline-nav { flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; }
+            .nav-item { flex-direction: column; gap: 8px; padding: 10px; scroll-snap-align: start; }
+            .nav-item::before { width: 1px; height: 15px; }
+            .nav-item:hover::before { width: 1px; height: 25px; }
+            .nav-item.active::before { width: 2px; height: 30px; }
 
-            .selector-container { top: 70px; right: 50%; transform: translateX(50%); width: max-content; }
+            .selector-container { top: 90px; right: 50%; transform: translateX(50%); width: max-content; }
             .selector-container.hidden { transform: translate(50%, -10px); }
 
-            .time-anchor-btn { bottom: 30px; right: 30px; width: 45px; height: 45px; }
+            .anchor-wrapper { bottom: 30px; right: 30px; }
+            .micro-copy { display: none; } /* 手機空間小，隱藏微文案 */
+            .time-anchor-btn { width: 45px; height: 45px; }
 
             .section { padding: 0 40px; }
             .section-track { flex-direction: column; }
@@ -383,29 +290,44 @@
 </head>
 <body data-active-route="a" data-active-night-route="shop">
 
-    <div id="loader">SYNCING DATA...</div>
-
-    <div id="day-selector" class="selector-container hidden"></div>
-    <div id="night-selector" class="selector-container hidden"></div>
-
-    <button class="time-anchor-btn" onclick="scrollToCurrentTime()" title="返回當下時間"></button>
-
-    <div class="app-layout" id="app-layout">
-        <nav class="sidebar scroll-container">
-            <div class="timeline-nav" id="timeline-nav">
-                </div>
-        </nav>
-        <main class="content-area scroll-container" id="scroll-area">
-            </main>
+    <div id="loader">
+        <div id="loader-text">SYNCING DATA...</div>
+        <button id="retry-btn" class="retry-btn" onclick="fetchData()" aria-label="重新連線">RETRY</button>
     </div>
+
+    <nav id="day-selector" class="selector-container hidden" aria-label="白天路線選擇"></nav>
+    <nav id="night-selector" class="selector-container hidden" aria-label="夜晚路線選擇"></nav>
+
+    <div class="anchor-wrapper">
+        <span class="micro-copy" id="sync-hint">SYNC TIME</span>
+        <button class="time-anchor-btn" onclick="scrollToCurrentTime()" aria-label="回到當下時間"></button>
+    </div>
+
+    <main class="app-layout" id="app-layout">
+        <aside class="sidebar scroll-container">
+            <nav class="timeline-nav" id="timeline-nav" aria-label="時間軸導航"></nav>
+        </aside>
+        <section class="content-area scroll-container" id="scroll-area">
+            </section>
+    </main>
 
     <script>
         const state = {
             dayRoute: sessionStorage.getItem('axisDayRoute') || 'a',
-            nightRoute: sessionStorage.getItem('axisNightRoute') || 'shop'
+            nightRoute: sessionStorage.getItem('axisNightRoute') || 'shop',
+            hasScrolled: false
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", fetchData);
+
+        function fetchData() {
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loader-text');
+            const retryBtn = document.getElementById('retry-btn');
+            
+            loaderText.innerText = "SYNCING DATA...";
+            retryBtn.style.display = "none";
+
             fetch(`data.json?v=${new Date().getTime()}`)
                 .then(response => {
                     if(!response.ok) throw new Error("JSON Fetch Failed");
@@ -413,19 +335,20 @@
                 })
                 .then(data => {
                     renderUI(data);
-                    document.getElementById('loader').style.opacity = '0';
+                    loader.style.opacity = '0';
                     setTimeout(() => {
-                        document.getElementById('loader').style.display = 'none';
+                        loader.style.display = 'none';
                         document.getElementById('app-layout').style.opacity = '1';
                         initObservers();
                         applySavedState();
                     }, 500);
                 })
                 .catch(error => {
-                    document.getElementById('loader').innerText = "DATA SYNC FAILED.";
-                    console.error("載入 JSON 發生錯誤，請確認檔案是否存在並使用 Live Server 運行。", error);
+                    loaderText.innerHTML = "<span class='error-msg'>NETWORK DISCONNECTED</span><br>無法取得行程資料";
+                    retryBtn.style.display = "inline-block";
+                    console.error(error);
                 });
-        });
+        }
 
         function renderUI(data) {
             renderSelectors('day-selector', data.config.dayRoutes, 'day');
@@ -433,72 +356,82 @@
 
             const navContainer = document.getElementById('timeline-nav');
             const scrollArea = document.getElementById('scroll-area');
+            
+            // 清空避免重複渲染
+            navContainer.innerHTML = '';
+            scrollArea.innerHTML = '';
 
-            // 1. 動態插入「路線首頁」 (Overview)
-            navContainer.insertAdjacentHTML('beforeend', `<a href="#time-overview" class="nav-item active">INFO</a>`);
+            // 1. 動態插入「路線首頁」
+            navContainer.insertAdjacentHTML('beforeend', `<a href="#time-overview" class="nav-item active" aria-label="總覽">INFO</a>`);
             
             let overviewRoutesHTML = '';
             data.config.dayRoutes.forEach(route => {
                 if(route.overview) {
                     let metaHTML = route.overview.meta.map(m => `<span>${m}</span>`).join('');
+                    
+                    // 生成 CSS 幾何流程圖
+                    let flowHTML = route.overview.steps.map((step, idx, arr) => {
+                        let node = `<div class="flow-node">${step}</div>`;
+                        let arrow = idx < arr.length - 1 ? `<div class="flow-arrow"></div>` : '';
+                        return node + arrow;
+                    }).join('');
+
                     overviewRoutesHTML += `
-                        <div class="route-content content-route-${route.id}">
+                        <article class="route-content content-route-${route.id}">
                             <div class="time-header">OVERVIEW / 路線總覽</div>
                             <h1 class="title">${route.overview.title}</h1>
-                            <div class="flow-diagram">${route.overview.flow}</div>
+                            <div class="flow-diagram">${flowHTML}</div>
                             <div class="meta-info">${metaHTML}</div>
-                        </div>
+                        </article>
                     `;
                 }
             });
 
             scrollArea.insertAdjacentHTML('beforeend', `
-                <section id="time-overview" class="section" data-phase="overview">
-                    <div class="section-track">
-                        ${overviewRoutesHTML}
-                    </div>
-                </section>
+                <div id="time-overview" class="section" data-phase="overview">
+                    <div class="section-track">${overviewRoutesHTML}</div>
+                </div>
             `);
 
-            // 2. 動態插入各時間節點行程
+            // 2. 動態插入行程
             data.schedule.forEach(point => {
-                navContainer.insertAdjacentHTML('beforeend', `<a href="#${point.timeId}" class="nav-item">${point.timeLabel}</a>`);
+                navContainer.insertAdjacentHTML('beforeend', `<a href="#${point.timeId}" class="nav-item" aria-label="${point.timeLabel}行程">${point.timeLabel}</a>`);
 
                 let routesHTML = '';
                 for (const [routeKey, routeData] of Object.entries(point.routes)) {
                     let metaHTML = routeData.meta.map(m => `<span>${m}</span>`).join('');
                     let btnsHTML = routeData.links.map(link => 
-                        `<a href="${link.url}" target="_blank" class="nav-btn">${link.label}</a>`
+                        `<a href="${link.url}" target="_blank" class="nav-btn" aria-label="${link.label}">${link.label}</a>`
                     ).join('');
 
                     routesHTML += `
-                        <div class="route-content content-route-${routeKey}">
+                        <article class="route-content content-route-${routeKey}">
                             <div class="time-header">${point.timeLabel} / ${point.action}</div>
                             <h2 class="title">${routeData.title}</h2>
                             <div class="meta-info">${metaHTML}</div>
                             <p class="description">${routeData.description}</p>
                             <div class="btn-group">${btnsHTML}</div>
-                        </div>
+                        </article>
                     `;
                 }
 
                 scrollArea.insertAdjacentHTML('beforeend', `
-                    <section id="${point.timeId}" class="section" data-phase="${point.phase}">
-                        <div class="section-track">
-                            ${routesHTML}
-                        </div>
-                    </section>
+                    <div id="${point.timeId}" class="section" data-phase="${point.phase}">
+                        <div class="section-track">${routesHTML}</div>
+                    </div>
                 `);
             });
         }
 
         function renderSelectors(containerId, routesArray, phase) {
             const container = document.getElementById(containerId);
+            container.innerHTML = '';
             routesArray.forEach(route => {
                 const btn = document.createElement('button');
                 btn.className = `toggle-btn`;
                 btn.innerText = route.label;
                 btn.dataset.route = route.id;
+                btn.setAttribute('aria-label', `切換至${route.label}`);
                 btn.onclick = (e) => setRoute(route.id, phase, e.target);
                 container.appendChild(btn);
             });
@@ -535,8 +468,16 @@
             const scrollArea = document.getElementById("scroll-area");
             const daySelector = document.getElementById("day-selector");
             const nightSelector = document.getElementById("night-selector");
+            const syncHint = document.getElementById("sync-hint");
 
-            // 使用精準的 50% 邊界捕捉置中物件
+            // 淡出微文案邏輯
+            scrollArea.addEventListener('scroll', () => {
+                if(!state.hasScrolled) {
+                    syncHint.style.opacity = '0';
+                    state.hasScrolled = true;
+                }
+            }, { once: true });
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -547,8 +488,7 @@
                         const activeLink = document.querySelector(`.nav-item[href="#${id}"]`);
                         if (activeLink) {
                             activeLink.classList.add("active");
-                            // 若左側時間軸超過螢幕高度，自動滾動對齊
-                            activeLink.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                            activeLink.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
                         }
 
                         if (phase === "day" || phase === "overview") {
@@ -589,7 +529,10 @@
             else targetId = "time-overview";
 
             const targetSection = document.getElementById(targetId);
-            if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById("sync-hint").style.opacity = '0'; // 點擊後隱藏提示
+            }
         }
     </script>
 </body>
